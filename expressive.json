@@ -1,0 +1,12 @@
+{
+    "global": "avenir",
+    "button": "b br2 bn bg-green white ph4 pv2 hover-bg-dark-green pointer",
+    "buttonDanger": "b br2 bn bg-red white ph4 pv2 hover-bg-dark-red pointer",
+    "link": "b no-underline green dim",
+    "LinkDanger": "b no-underline red dim",
+    "input": "pa2 br2 ba b--moon-gray",
+    "title1": "normal f1 mid-gray ma0",
+    "title2": "normal f2 mid-gray ma0",
+    "title3": "normal f3 mid-gray ma0",
+    "textarea": "pa2 br2 ba b--moon-gray"
+}
