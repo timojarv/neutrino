@@ -1,0 +1,27 @@
+global: helvetica
+button: b bn ph4 pv2 pointer bg-washed-green green hover-dark-green
+buttonDanger: b br2 bn ph4 pv2 pointer bg-washed-red red hover-dark-red
+link: no-underline dark-gray hover-gray bg-white bn
+LinkDanger: b no-underline red dim
+input: pa2 br2 ba b--moon-gray
+title1: normal f1 mid-gray mt0 mb4
+title2: normal f2 mid-gray mt0 mb4
+title3: f3 b mid-gray mt0 mb3
+textarea: pa2 br2 ba b--moon-gray courier w-100
+tag: bg-light-gray ph3 pv1 br-pill gray pointer hover-mid-gray fw5 f6
+ruler: b--moon-gray bb-0 br-0 bl-0 bt w-100
+linkDanger: b no-underline red hover-dark-red pointer bg-white bn
+linkGray: b no-underline gray dim
+linkPrimary: b no-underline green hover-dark-green pointer bg-white bn
+linkBold: b no-underline gray hover-mid-gray pointer bg-white bn
+buttonIcon: bn silver hover-green pointer bg-white
+buttonIconDanger: br2 bn ph0 pt1 w2 h2 dib pointer bg-washed-red red hover-dark-red
+copy: lh-copy f5 dark-gray ma0 measure
+buttonIconPrimary: br2 bn ph0 pt1 w2 h2 dib pointer bg-washed-green green hover-dark-green
+dateTime: gray i hover-near-black
+dropdown: pa2 bg-white b bn gray hover-dark-gray input-reset
+details: b gray
+popupMenu: list pv3 ph4 shadow-4 br2 lh-copy
+modal: shadow-4 ph4 pt4 pb3 br2 w-80 mw6
+actionGroup: flex justify-between mt4
+some element: pv3 ph4 bn sans-serif b bg-blue white pointer hover-bg-dark-blue br1
