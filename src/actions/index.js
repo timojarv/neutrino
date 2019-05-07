@@ -25,16 +25,16 @@ export const fetchProjects = () => dispatch =>
                         const template = deserialize(data.template) || [];
                         const classes = deserialize(data.classes) || {};
                         return Object.assign(docs, {
-                            [doc.id]: { classes, template, name: data.name },
+                            [doc.id]: { classes, template, name: data.name }
                         });
-                    }, {}),
-                },
+                    }, {})
+                }
             })
         );
 
 export const openProject = id => ({
     type: PROJECT_OPENED,
-    payload: { id },
+    payload: { id }
 });
 
 export const createProject = (name, template = '', classes = '') => dispatch =>
@@ -44,7 +44,7 @@ export const createProject = (name, template = '', classes = '') => dispatch =>
             template,
             classes,
             created: Date.now(),
-            owner: auth.currentUser.uid,
+            owner: auth.currentUser.uid
         })
         .then(() => dispatch(fetchProjects));
 
@@ -55,7 +55,6 @@ export const deleteProject = id => dispatch =>
         .then(() => dispatch(fetchProjects));
 
 export const saveProject = () => (dispatch, getState) => {
-    console.log('saving');
     const state = getState();
     if (!state.openedProject) return;
     const { name, template, classes } = state.projects[state.openedProject];
@@ -64,23 +63,21 @@ export const saveProject = () => (dispatch, getState) => {
         .update({
             name,
             template: serialize(template, JSON),
-            classes: serialize(classes, JSON),
+            classes: serialize(classes, JSON)
         })
         .then(() =>
             dispatch({
                 type: PROJECT_SAVED,
-                payload: { id: state.openedProject },
+                payload: { id: state.openedProject }
             })
         );
 };
 
-export const updateComponent = (name, data) => ({
+export const updateComponent = data => ({
     type: PROJECT_UPDATED,
-    payload: { name, ...data },
+    payload: { ...data }
 });
 
-export const updateTemplate = (name, template) =>
-    updateComponent(name, { template });
+export const updateTemplate = template => updateComponent({ template });
 
-export const updateClasses = (name, classes) =>
-    updateComponent(name, { classes });
+export const updateClasses = classes => updateComponent({ classes });

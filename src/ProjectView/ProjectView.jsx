@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import Component from '../Component';
-import { saveProject } from '../actions';
+import { saveProject, updateTemplate, updateClasses } from '../actions';
+import { useCurrentProject } from '../hooks';
 
 function debounce(func, wait, immediate) {
     var timeout;
@@ -20,22 +21,55 @@ function debounce(func, wait, immediate) {
 }
 
 const ProjectView = props => {
-    const project = useSelector(state => state.projects[state.openedProject]);
+    const project = useCurrentProject();
     const dispatch = useDispatch();
     const debouncedSave = useRef(debounce(() => dispatch(saveProject()), 1000));
     useEffect(() => debouncedSave.current(), [project]);
+    const remove = name => () => {
+        dispatch(updateTemplate(project.template.filter(v => v.name !== name)));
+    };
+    const update = name => ({ template, classes }) => {
+        if (template) {
+            dispatch(
+                updateTemplate(
+                    project.template.map(c =>
+                        c.name === name ? { ...c, data: template } : c
+                    )
+                )
+            );
+        }
+
+        if (classes) {
+            dispatch(updateClasses({ ...project.classes, [name]: classes }));
+        }
+    };
+    const insertAfter = name => {
+        dispatch(
+            updateTemplate(
+                project.template.reduce((nt, c) => {
+                    nt.push(c);
+                    if (c.name === name)
+                        nt.push({ name: 'newComponent', data: '' });
+                }, [])
+            )
+        );
+    };
     return (
         <main className="sans-serif mt6">
             {project ? (
                 project.template.map(({ name, data }) => (
                     <Component
+                        key={name}
                         classes={project.classes}
                         name={name}
                         template={data}
+                        remove={remove(name)}
+                        update={update(name)}
+                        insert={insertAfter(name)}
                     />
                 ))
             ) : (
-                <h2>No project opened.</h2>
+                <h2 className="tc normal dark-gray">No project opened.</h2>
             )}
         </main>
     );

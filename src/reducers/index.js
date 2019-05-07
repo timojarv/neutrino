@@ -2,12 +2,12 @@ import {
     PROJECTS_FETCHED,
     PROJECT_OPENED,
     PROJECT_SAVED,
-    PROJECT_UPDATED,
+    PROJECT_UPDATED
 } from '../actions';
 
 const initialState = {
     openedProject: false,
-    projects: {},
+    projects: {}
 };
 
 const rootReducer = (state = initialState, action) => {
@@ -24,12 +24,12 @@ const rootReducer = (state = initialState, action) => {
                     ...state.projects,
                     [payload.id]: {
                         ...state.projects[payload.id],
-                        saved: true,
-                    },
-                },
+                        saved: true
+                    }
+                }
             };
         case PROJECT_UPDATED:
-            const { name, template, classes } = payload;
+            const { template, classes } = payload;
             const id = state.openedProject;
             return {
                 ...state,
@@ -37,16 +37,13 @@ const rootReducer = (state = initialState, action) => {
                     ...state.projects,
                     [id]: {
                         ...state.projects[id],
+                        saved: false,
                         template: template
-                            ? state.projects[id].template.map(c =>
-                                  c.name === name ? { name, data: template } : c
-                              )
+                            ? template
                             : state.projects[id].template,
-                        classes: classes
-                            ? { ...state.projects[id].classes, [name]: classes }
-                            : state.projects[id].classes,
-                    },
-                },
+                        classes: classes ? classes : state.projects[id].classes
+                    }
+                }
             };
         default:
             return state;

@@ -19,7 +19,10 @@ const ProjectManager = props => {
             onCancel={() => setCreating(false)}
         />
     ) : (
-        <ProjectList onClickCreate={() => setCreating(true)} />
+        <ProjectList
+            onClose={props.onClose}
+            onClickCreate={() => setCreating(true)}
+        />
     );
 };
 

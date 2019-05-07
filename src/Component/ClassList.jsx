@@ -8,7 +8,7 @@ const ClassList = ({ name, classes, onChange }) => (
             type="text"
             className="w-100"
             onChange={e => onChange(e.target.value)}
-            value={classes[name]}
+            value={classes[name] || ''}
         />
     </React.Fragment>
 );
