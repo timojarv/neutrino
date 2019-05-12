@@ -1,61 +1,57 @@
-import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import Button, { buttonContainer } from '../Button';
-import { openProject, deleteProject } from '../actions';
-import { useUser } from '../hooks';
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
+import { Link } from 'react-router-dom';
+
+import { Button, Title } from '../base';
+import { useUser } from '../util/hooks';
+import { db } from '../util/firebase';
+
+const List = styled.ul`
+    list-style: none;
+    padding-left: 0;
+    font-family: 'avenir next', avenir, sans-serif;
+`;
+
+const Item = styled.li`
+    a {
+        color: #495057;
+        font-weight: bold;
+        text-decoration: none;
+        font-size: 1.2em;
+        line-height: 2;
+
+        &:hover {
+            color: #212529;
+        }
+    }
+`;
 
 const ProjectList = props => {
-    const { onClickCreate, onClose } = props;
-    const { logout } = useUser();
-    const activeProject = useSelector(state => state.activeProject);
-    const projects = useSelector(state => state.projects);
-    const dispatch = useDispatch();
-    const setActiveProject = id => {
-        dispatch(openProject(id));
-        onClose();
-    };
+    const { user } = useUser();
+    const [projects, setProjects] = useState([]);
+    useEffect(() => {
+        if (!user || !user.uid) {
+            setProjects([]);
+            return;
+        }
+        db.collection('projects')
+            .where('owner', '==', user.uid)
+            .get()
+            .then(({ docs }) =>
+                setProjects(docs.map(d => ({ id: d.id, ...d.data() })))
+            );
+    }, [user]);
     return (
         <React.Fragment>
-            <h2 className="mt0">My Projects</h2>
-            <ul className="list pl0">
-                {Object.entries(projects).map(([id, project]) => (
-                    <li
-                        key={id}
-                        className="hide-child hover-gray flex items-center justify-between"
-                    >
-                        <span
-                            className={
-                                'pointer fw5 f4 flex-auto ' +
-                                (id === activeProject ? 'fw6 dark-blue' : '')
-                            }
-                        >
-                            {project.name}
-                        </span>
-                        {id !== activeProject && (
-                            <Button
-                                onClick={() => setActiveProject(id)}
-                                className="child"
-                            >
-                                Open
-                            </Button>
-                        )}
-                        <Button
-                            className="child"
-                            onClick={() =>
-                                window.confirm('Are you sure?') &&
-                                dispatch(deleteProject(id))
-                            }
-                            color="red"
-                        >
-                            Delete
-                        </Button>
-                    </li>
+            <Title>My Projects</Title>
+            <List>
+                {projects.map(project => (
+                    <Item key={project.id}>
+                        <Link to={`/${project.id}`}>{project.name}</Link>
+                    </Item>
                 ))}
-            </ul>
-            <div className={buttonContainer}>
-                <Button onClick={onClickCreate}>Create New</Button>
-                <Button onClick={logout}>Log Out</Button>
-            </div>
+            </List>
+            <Button onClick={props.onClickCreate}>New Project</Button>
         </React.Fragment>
     );
 };

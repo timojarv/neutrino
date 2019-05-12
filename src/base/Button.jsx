@@ -1,15 +1,21 @@
 import React from 'react';
+import styled from 'styled-components';
 
-const Button = ({ color = 'blue', className = '', ...other }) => (
-    <button
-        {...other}
-        className={
-            `bn b bg-transparent dark-${color} pv2 ph3 br-pill ` +
-            (other.disabled ? ' o-50 ' : ` pointer hover-bg-washed-${color} `) +
-            className
-        }
-    />
-);
+const Button = styled.button`
+    font-family: 'avenir next', avenir, sans-serif;
+    background-color: transparent;
+    cursor: pointer;
+    border: none;
+    border-radius: 100px;
+    color: #4263eb;
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    text-decoration: none;
+
+    &:hover {
+        background-color: #edf2ff;
+    }
+`;
 
 export const AddButton = ({ className, ...other }) => (
     <span className={'w1 h1 dib hide-child z-4 ' + className}>

@@ -1,95 +1,85 @@
-import React, { useEffect, useRef } from 'react';
-import { useDispatch } from 'react-redux';
-import Component from '../Component';
-import { saveProject, updateTemplate, updateClasses } from '../actions';
-import { useCurrentProject } from '../hooks';
-import Button from '../Button';
-
-function debounce(func, wait, immediate) {
-    var timeout;
-    return function() {
-        var context = this,
-            args = arguments;
-        var later = function() {
-            timeout = null;
-            if (!immediate) func.apply(context, args);
-        };
-        var callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) func.apply(context, args);
-    };
-}
+import React, { useState, useEffect } from 'react';
+import { Route, Link } from 'react-router-dom';
+import Header from '../Header';
+import { Button, Title, Modal } from '../base';
+import { db } from '../util/firebase';
+import Project from '../util/project';
+import Component from './Component';
+import EditTemplate from './EditTemplate';
+import Export from './Export';
+import Import from './Import';
 
 const ProjectView = props => {
-    const project = useCurrentProject();
-    const dispatch = useDispatch();
-    const debouncedSave = useRef(debounce(() => dispatch(saveProject()), 1000));
-    useEffect(() => debouncedSave.current(), [project]);
-    const remove = name => () => {
-        dispatch(updateTemplate(project.template.filter(v => v.name !== name)));
-    };
-    const update = name => ({ template, classes }) => {
-        if (template !== undefined) {
-            dispatch(
-                updateTemplate(
-                    project.template.map(c =>
-                        c.name === name ? { ...c, data: template } : c
-                    )
-                )
-            );
-        }
-
-        if (classes !== undefined) {
-            dispatch(updateClasses({ ...project.classes, [name]: classes }));
-        }
-    };
-    const insertAfter = name => () => {
-        dispatch(
-            updateTemplate(
-                project.template.reduce(
-                    (nt, c) => {
-                        nt.push(c);
-                        if (c.name === name)
-                            nt.push({ name: 'newComponent', data: '' });
-                        return nt;
-                    },
-                    name === null ? [{ name: 'newComponent', data: '' }] : []
-                )
-            )
-        );
-    };
+    const [project, setProject] = useState();
+    useEffect(() => {
+        db.collection('projects')
+            .doc(props.match.params.id)
+            .get()
+            .then(doc => setProject(new Project(doc.id, doc.data())));
+    }, []);
+    useEffect(() => console.log(project), [project]);
+    if (!project)
+        return <Title style={{ textAlign: 'center' }}>Loading...</Title>;
     return (
-        <main className="sans-serif mt6 mb5">
-            {project ? (
-                <React.Fragment>
-                    {project.template.length === 0 && (
-                        <div className="tc">
-                            <h2 className="normal dark-gray">No Components</h2>
-                            <Button onClick={insertAfter(null)}>
-                                Create New
-                            </Button>
-                        </div>
-                    )}
-                    {project.template.map(({ name, data }, i) => (
-                        <Component
-                            key={i}
-                            classes={project.classes}
-                            name={name}
-                            template={data}
-                            remove={remove(name)}
-                            update={update(name)}
-                            insert={insertAfter(name)}
-                            insertBefore={
-                                i === 0 ? insertAfter(null) : undefined
-                            }
+        <React.Fragment>
+            <Header>
+                <div>
+                    <strong>{project.name}</strong>
+                    <Button style={{ marginLeft: '1rem' }}>Save</Button>
+                </div>
+                <Button as={Link} to={`/${props.match.params.id}/template`}>
+                    Edit Template
+                </Button>
+                <div>
+                    <Button as={Link} to={`/${props.match.params.id}/import`}>
+                        Import Classes
+                    </Button>
+                    <Button as={Link} to={`/${props.match.params.id}/export`}>
+                        Export Classes
+                    </Button>
+                </div>
+            </Header>
+            <div style={{ marginBottom: '2rem' }}>
+                {project.template.map((component, i) => (
+                    <Component
+                        key={i}
+                        classes={project.classes}
+                        name={component.name}
+                        template={component.data}
+                    />
+                ))}
+            </div>
+            <Route
+                path="/:id/template"
+                render={props => (
+                    <Modal visible onClose={props.history.goBack}>
+                        <EditTemplate />
+                    </Modal>
+                )}
+            />
+            <Route
+                path="/:id/import"
+                render={props => (
+                    <Modal visible onClose={props.history.goBack}>
+                        <Import
+                            onImport={console.log}
+                            onClose={props.history.goBack}
                         />
-                    ))}
-                </React.Fragment>
-            ) : (
-                <h2 className="tc normal dark-gray">No project opened.</h2>
-            )}
-        </main>
+                    </Modal>
+                )}
+            />
+            <Route
+                path="/:id/export"
+                render={props => (
+                    <Modal visible onClose={props.history.goBack}>
+                        <Export
+                            onClose={props.history.goBack}
+                            classes={project.classes}
+                        />
+                    </Modal>
+                )}
+            />
+        </React.Fragment>
     );
 };
 

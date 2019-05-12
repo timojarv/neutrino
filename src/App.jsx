@@ -1,13 +1,30 @@
 import React from 'react';
-import Header from './Header';
+import styled from 'styled-components';
+import {
+    BrowserRouter as Router,
+    Route,
+    Switch,
+    Redirect,
+} from 'react-router-dom';
+
 import ProjectView from './ProjectView';
+import ProjectManager from './ProjectManager';
+
+const Container = styled.main`
+    padding-top: 8rem;
+`;
 
 const App = () => {
     return (
-        <React.Fragment>
-            <Header />
-            <ProjectView />
-        </React.Fragment>
+        <Router>
+            <Container>
+                <Switch>
+                    <Route exact path="/" component={ProjectManager} />
+                    <Route path="/:id" component={ProjectView} />
+                    <Redirect to="/" />
+                </Switch>
+            </Container>
+        </Router>
     );
 };
 

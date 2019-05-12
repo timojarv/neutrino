@@ -27,7 +27,7 @@ export const ELM = {
 };
 
 export const serializers = {
-    json: JSON,
-    yaml: YAML,
-    elm: ELM,
+    JSON: JSON,
+    YAML: YAML,
+    Elm: ELM,
 };
