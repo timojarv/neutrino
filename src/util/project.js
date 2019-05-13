@@ -1,84 +1,66 @@
-import { useRef, useState } from 'react';
-
-import { deserialize } from './serde';
+import { useState, useEffect, useCallback } from 'react';
 import { db } from './firebase';
+import { deserialize } from './serde';
 
-export default class Project {
-    name = '';
-    id = null;
-    template = [];
-    classes = {};
+const useProject = id => {
+    const [data, setData] = useState();
+    const [saved, setSaved] = useState(false);
+    useEffect(() => {
+        db.collection('projects')
+            .doc(id)
+            .get()
+            .then(doc => {
+                const id = doc.id;
+                const { template, classes, ...data } = doc.data();
+                setData({
+                    id,
+                    template: deserialize(template) || [],
+                    classes: deserialize(classes) || {},
+                    ...data
+                });
+                setSaved(true);
+            });
+    }, [id]);
 
-    constructor(id, data) {
-        const { classes, template, name } = data;
-        this.name = name;
-        this.id = id;
-        let parsed = deserialize(template);
-        if (parsed) {
-            this.template = templateUtils.normalize(parsed);
-        }
+    useEffect(() => setSaved(false), [data, setSaved]);
 
-        parsed = deserialize(classes);
-        if (parsed) {
-            this.template.forEach(
-                ({ name }) => (this.classes[name] = parsed[name])
-            );
-        }
-    }
+    const setTemplate = useCallback(
+        template => setData({ ...data, template }),
+        [data, setData]
+    );
 
-    save() {
-        const template = JSON.stringify(this.template);
-        const classes = this.template.reduce(
-            (cls, { name }) => (cls[name] = this.classes[name]),
-            {}
+    const setClasses = useCallback(classes => setData({ ...data, classes }), [
+        data,
+        setData
+    ]);
+
+    const save = useCallback(() => {
+        const template = JSON.stringify(data.template);
+        const classes = JSON.stringify(
+            data.template.reduce(
+                (cls, { name }) => {
+                    cls[name] = data.classes[name] || '';
+                    return cls;
+                },
+                { global: data.classes.global || '' }
+            )
         );
 
         return db
             .collection('projects')
-            .doc(this.id)
-            .update({ template, classes });
-    }
-
-    remove() {
-        return db
-            .collection('projects')
-            .doc(this.id)
-            .delete();
-    }
-}
-
-export const useProject = () => {
-    const [data, setData] = useState({});
+            .doc(data.id)
+            .update({ template, classes })
+            .then(() => setSaved(true));
+    }, [data]);
 
     return {
-        template: data.template,
-        setTemplate: template => setData({ ...data, template }),
-        classes: data.classes,
-        setClasses: classes => setData({ ...data, classes }),
-        id: data.id,
-        name: data.name,
-        set: data => setData(data),
-        save: () => {
-            const template = JSON.stringify(this.template);
-            const classes = this.template.reduce(
-                (cls, { name }) => (cls[name] = this.classes[name]),
-                {}
-            );
-
-            return db
-                .collection('projects')
-                .doc(this.id)
-                .update({ template, classes });
-        },
+        ...data,
+        setTemplate,
+        setClasses,
+        save,
+        saved,
+        loading: !data
     };
 };
 
-const templateUtils = {
-    fromObject: obj =>
-        Object.entries(obj).map(([name, data]) => ({
-            name,
-            data,
-        })),
-    normalize: obj =>
-        Array.isArray(obj) ? obj : templateUtils.fromObject(obj),
-};
+export default useProject;

@@ -23,11 +23,22 @@ export const ELM = {
             .map(
                 n => `${n} : Attribute msg\n${n} =\n    class "${obj[n]}"\n\n\n`
             )
-            .reduce((def, elm) => elm + def, ''),
+            .reduce((def, elm) => elm + def, '')
+};
+
+export const JS = {
+    stringify: obj =>
+        'const classes = {\n' +
+        Object.entries(obj).reduce(
+            (res, [k, v]) => `${res}  ${k}: '${v}',\n`,
+            ''
+        ) +
+        '};'
 };
 
 export const serializers = {
     JSON: JSON,
     YAML: YAML,
     Elm: ELM,
+    JavaScript: JS
 };

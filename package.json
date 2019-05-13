@@ -5,6 +5,7 @@
     "dependencies": {
         "firebase": "^5.10.1",
         "react": "^16.8.6",
+        "react-ace": "^6.5.0",
         "react-dom": "^16.8.6",
         "react-icons": "^3.6.1",
         "react-redux": "^7.1.0-alpha.4",

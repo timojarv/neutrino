@@ -12,7 +12,8 @@ const Code = styled.pre`
 
 const Top = styled.div`
     display: flex;
-    align-items: flex-start;
+    align-items: center;
+    margin-bottom: 1rem;
 `;
 
 const copyToClipboard = str => {
@@ -36,7 +37,7 @@ const Export = props => {
     return (
         <React.Fragment>
             <Top>
-                <Title style={{ marginRight: '2rem' }} as="h2">
+                <Title style={{ marginRight: '2rem', marginBottom: 0 }} as="h2">
                     Export
                 </Title>
                 <select
@@ -44,7 +45,9 @@ const Export = props => {
                     onChange={e => setFormat(e.target.value)}
                 >
                     {Object.keys(serializers).map(ser => (
-                        <option value={ser}>{ser}</option>
+                        <option key={ser} value={ser}>
+                            {ser}
+                        </option>
                     ))}
                 </select>
             </Top>

@@ -1,21 +1,6 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Title, ActionGroup, Button } from '../base';
+import { Title, ActionGroup, Button, Textarea } from '../base';
 import { deserialize } from '../util/serde';
-
-const Textarea = styled.textarea`
-    margin: 0;
-    line-height: 1.5;
-    max-height: 80vh;
-    overflow: auto;
-    width: 800px;
-    height: 500px;
-    border-radius: 0.25rem;
-    resize: vertical;
-    padding: 4px;
-    border: 1px solid #dee2e6;
-    font-family: monospace;
-`;
 
 const Import = props => {
     const [data, setData] = useState('');

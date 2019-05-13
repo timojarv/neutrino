@@ -1,31 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Route, Link } from 'react-router-dom';
 import Header from '../Header';
 import { Button, Title, Modal } from '../base';
-import { db } from '../util/firebase';
-import Project from '../util/project';
+import useProject from '../util/project';
 import Component from './Component';
 import EditTemplate from './EditTemplate';
 import Export from './Export';
 import Import from './Import';
 
 const ProjectView = props => {
-    const [project, setProject] = useState();
-    useEffect(() => {
-        db.collection('projects')
-            .doc(props.match.params.id)
-            .get()
-            .then(doc => setProject(new Project(doc.id, doc.data())));
-    }, []);
-    useEffect(() => console.log(project), [project]);
-    if (!project)
+    const project = useProject(props.match.params.id);
+    const template = (project && project.template) || [];
+    if (!project || project.loading)
         return <Title style={{ textAlign: 'center' }}>Loading...</Title>;
     return (
         <React.Fragment>
             <Header>
                 <div>
-                    <strong>{project.name}</strong>
-                    <Button style={{ marginLeft: '1rem' }}>Save</Button>
+                    <strong>
+                        {!project.saved ? (
+                            <em>{project.name}*</em>
+                        ) : (
+                            project.name
+                        )}
+                    </strong>
+                    <Button
+                        onClick={project.save}
+                        style={{ marginLeft: '1rem' }}
+                    >
+                        Save
+                    </Button>
                 </div>
                 <Button as={Link} to={`/${props.match.params.id}/template`}>
                     Edit Template
@@ -40,10 +44,16 @@ const ProjectView = props => {
                 </div>
             </Header>
             <div style={{ marginBottom: '2rem' }}>
-                {project.template.map((component, i) => (
+                <Component
+                    classes={project.classes}
+                    setClasses={project.setClasses}
+                    name="global"
+                />
+                {template.map((component, i) => (
                     <Component
                         key={i}
                         classes={project.classes}
+                        setClasses={project.setClasses}
                         name={component.name}
                         template={component.data}
                     />
@@ -53,7 +63,14 @@ const ProjectView = props => {
                 path="/:id/template"
                 render={props => (
                     <Modal visible onClose={props.history.goBack}>
-                        <EditTemplate />
+                        <EditTemplate
+                            template={template}
+                            onClose={props.history.goBack}
+                            onUpdate={template => {
+                                project.setTemplate(template);
+                                props.history.goBack();
+                            }}
+                        />
                     </Modal>
                 )}
             />
@@ -62,7 +79,10 @@ const ProjectView = props => {
                 render={props => (
                     <Modal visible onClose={props.history.goBack}>
                         <Import
-                            onImport={console.log}
+                            onImport={classes => {
+                                project.setClasses(classes);
+                                props.history.goBack();
+                            }}
                             onClose={props.history.goBack}
                         />
                     </Modal>
